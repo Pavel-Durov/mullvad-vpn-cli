@@ -5,7 +5,6 @@ module StringsSpec (
 import Strings (toLower, equalIgnoreCase)
 import Test.HUnit
 
-
 toLowerTestCase = TestCase (
         assertEqual  
         "assertEqual: expected to be equal ignore char case" 

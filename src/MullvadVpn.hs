@@ -10,7 +10,7 @@ module MullvadVpn
 import Strings (equalIgnoreCase)
 import Data.Maybe
 import Network.HTTP.Simple (parseRequest, httpJSON, getResponseBody, httpBS )
-import Data.Aeson -- (decode, encode, Value, FromJSON, ToJSON, genericToJSON, defaultOptions)
+import Data.Aeson
 import GHC.Generics
 import Data.List (isInfixOf)
 import Data.ByteString.Lazy.Char8 (unpack, pack)
