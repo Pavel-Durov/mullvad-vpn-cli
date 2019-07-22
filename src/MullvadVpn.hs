@@ -2,24 +2,23 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module MullvadVpn
-    ( getStatus, 
+module MullvadVpn( 
+      getStatus, 
       isConnected
     ) where
 
+import Data.Aeson
+import GHC.Generics
 import Strings (equalIgnoreCase)
 import Data.Maybe
 import Network.HTTP.Simple (parseRequest, httpJSON, getResponseBody, httpBS )
-import Data.Aeson
-import GHC.Generics
 import Data.List (isInfixOf)
 import Data.ByteString.Lazy.Char8 (unpack, pack)
-
 import GHC.Generics
 
 data Status = Status { 
-                country :: String
-              , ip :: String
+                country :: String, 
+                ip :: String
             } deriving (Eq, Generic, Show)
 
 instance ToJSON Status where
@@ -28,26 +27,30 @@ instance ToJSON Status where
 instance FromJSON Status where
   parseJSON = genericParseJSON defaultOptions
 
+getJson :: String -> IO(Value) 
 getJson url = do
     request <- parseRequest $ "GET " ++ url
     response <- httpJSON request
-    return(getResponseBody response)
-
+    return(getResponseBody $ response :: Value)
+    
+getText :: String -> IO(String)    
 getText url = do
     request <- parseRequest $ "GET " ++ url
     response <- httpBS request
     return(show (getResponseBody response))
 
+getVpnConnectionMessage :: IO(String)
 getVpnConnectionMessage = getText "https://am.i.mullvad.net/connected"
 
+getVpnConnectionJson :: IO(Value)
 getVpnConnectionJson = getJson "https://am.i.mullvad.net/json"
 
 getStatus :: IO(Status)
 getStatus = do
     jsonResp <- getVpnConnectionJson
-    let decoded = decode ( encode (jsonResp :: Value)) :: Maybe Status
+    let decoded = decode ( encode jsonResp) :: Maybe Status
     case decoded of
-        Nothing -> error $ "Unexpected json format: " ++ unpack(encode (jsonResp :: Value))
+        Nothing -> error $ "Unexpected json format: " ++ unpack(encode jsonResp)
         Just status -> return(status)
 
 isConnectedVpnMessage :: String -> Bool
