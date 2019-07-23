@@ -10,7 +10,9 @@ countryList = [
     ("cyprus", "Cyprus"),
     ("sweden", "Sweden"),
     ("united states", "United States"),
-    ("united kingdom", "United Kingdom")] 
+    ("united kingdom", "United Kingdom"),
+    ("us", "United States"),
+    ("uk", "United Kingdom")] 
 
 countryMap = Map.fromList(countryList)
 
@@ -28,7 +30,7 @@ main = do
     let country = head(args)
     case validateCountryCliArg(country) of
         True -> checkConnection country
-        False -> error "Invalid country parameter"
+        False -> error $ "Invalid country parameter" ++ country
 
 checkConnection :: String -> IO()
 checkConnection country = do

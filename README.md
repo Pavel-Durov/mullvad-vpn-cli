@@ -2,6 +2,12 @@
 
 Mullvad vpn cli utility
 
+## Run
+```
+$ stack run uk 
+```
++ expects one cli parameter - country name
+
 ## Build
 ```
 $ stack build
