@@ -12,33 +12,34 @@ countryList = [
     ("united states", "United States"),
     ("united kingdom", "United Kingdom"),
     ("us", "United States"),
-    ("uk", "United Kingdom")] 
+    ("uk", "United Kingdom"),
+    ("cy", "Cyprus")
+    ] 
 
 countryMap = Map.fromList(countryList)
 
-validateCountryCliArg :: String -> Bool
-validateCountryCliArg country = 
+validateCliParamsAndCheckConnection :: String -> IO()
+validateCliParamsAndCheckConnection country = do
     case lookupResult of
-        Nothing -> False
-        Just _ -> True
-    where key = toLower(country)
-          lookupResult = Map.lookup key countryMap
-
-main :: IO ()
-main = do
-    args <- getArgs
-    let country = head(args)
-    case validateCountryCliArg(country) of
-        True -> checkConnection country
-        False -> error $ "Invalid country parameter" ++ country
+        Nothing -> error $ "Invalid country parameter"
+        Just c -> checkConnection c
+    where 
+        key = toLower(country)
+        lookupResult = Map.lookup key countryMap 
 
 checkConnection :: String -> IO()
 checkConnection country = do
     connected <- isConnected(country)
     if connected
         then do 
-            putStrLn "Connected"
+            putStrLn "👍 You are Connected"
             exitSuccess
         else do 
-            putStrLn "Not Connected"
+            putStrLn "👎 You are NOT Connected"
             exitFailure
+
+main :: IO ()
+main = do
+    args <- getArgs
+    let countyCliArg = head args
+    validateCliParamsAndCheckConnection(countyCliArg)

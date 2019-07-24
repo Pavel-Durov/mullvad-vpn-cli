@@ -4,7 +4,10 @@
 
 module MullvadVpn( 
       getStatus, 
-      isConnected
+      isConnected,
+      isConnectedVpnMessage,
+      isConnectedStatus,
+      Status(..)
     ) where
 
 import Data.Aeson
@@ -17,8 +20,7 @@ import Data.ByteString.Lazy.Char8 (unpack, pack)
 import GHC.Generics
 
 data Status = Status { 
-                country :: String, 
-                ip :: String
+                country :: String
             } deriving (Eq, Generic, Show)
 
 instance ToJSON Status where
@@ -59,7 +61,12 @@ isConnectedVpnMessage = isInfixOf "You are connected to Mullvad"
 isConnected :: String -> IO(Bool)
 isConnected countryName = do
     status <- getStatus
-    let connectionCountry = country status
-    let isExpectedCountry = equalIgnoreCase countryName connectionCountry
-    isConnectedToVpn <- fmap isConnectedVpnMessage getVpnConnectionMessage
-    return(isExpectedCountry && isConnectedToVpn)
+    connectionMessage <- getVpnConnectionMessage
+    return(isConnectedStatus status countryName connectionMessage)
+
+isConnectedStatus :: Status -> String -> String -> Bool
+isConnectedStatus status countryName connectionMessage = 
+    let
+      isConnectedToVpn = (isConnectedVpnMessage connectionMessage)
+      isExpectedCountry = (equalIgnoreCase countryName (country status))
+    in (isExpectedCountry && isConnectedToVpn)

@@ -1,4 +1,7 @@
 import Test.HUnit
 import qualified StringsSpec as Strings
+import qualified MullvadVpnSpec as MullvadVpn
 
-main = runTestTT Strings.tests
+main = do
+    runTestTT Strings.tests
+    runTestTT MullvadVpn.tests
