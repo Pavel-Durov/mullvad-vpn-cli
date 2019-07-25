@@ -22,13 +22,13 @@ import GHC.Generics
 data Status = Status { 
                 country :: String
             } deriving (Eq, Generic, Show)
-
+            
 instance ToJSON Status where
   toJSON = genericToJSON defaultOptions
 
 instance FromJSON Status where
   parseJSON = genericParseJSON defaultOptions
-
+  
 getJson :: String -> IO(Value) 
 getJson url = do
     request <- parseRequest $ "GET " ++ url
@@ -41,16 +41,18 @@ getText url = do
     response <- httpBS request
     return(show (getResponseBody response))
 
+baseUrl = "https://am.i.mullvad.net"
+
 getVpnConnectionMessage :: IO(String)
-getVpnConnectionMessage = getText "https://am.i.mullvad.net/connected"
+getVpnConnectionMessage = getText $ baseUrl ++ "/connected"
 
 getVpnConnectionJson :: IO(Value)
-getVpnConnectionJson = getJson "https://am.i.mullvad.net/json"
+getVpnConnectionJson = getJson $ baseUrl ++ "/json"
 
 getStatus :: IO(Status)
 getStatus = do
     jsonResp <- getVpnConnectionJson
-    let decoded = decode ( encode jsonResp) :: Maybe Status
+    let decoded = decode (encode jsonResp) :: Maybe Status
     case decoded of
         Nothing -> error $ "Unexpected json format: " ++ unpack(encode jsonResp)
         Just status -> return(status)
@@ -65,8 +67,8 @@ isConnected countryName = do
     return(isConnectedStatus status countryName connectionMessage)
 
 isConnectedStatus :: Status -> String -> String -> Bool
-isConnectedStatus status countryName connectionMessage = 
+isConnectedStatus status countryName connectionMsg = 
     let
-      isConnectedToVpn = (isConnectedVpnMessage connectionMessage)
-      isExpectedCountry = (equalIgnoreCase countryName (country status))
-    in (isExpectedCountry && isConnectedToVpn)
+      isConnectedToVpn = isConnectedVpnMessage connectionMsg
+      isExpectedCountry = equalIgnoreCase countryName (country status)
+    in isExpectedCountry && isConnectedToVpn
