@@ -10,14 +10,13 @@ module MullvadVpn(
       Status(..)
     ) where
 
-import Data.Aeson
-import GHC.Generics
+import qualified Network as Net
+import Data.Aeson (Value, ToJSON, FromJSON, parseJSON, toJSON, encode, decode, genericParseJSON, defaultOptions, genericToJSON)
 import Strings (equalIgnoreCase)
-import Data.Maybe
-import Network.HTTP.Simple (parseRequest, httpJSON, getResponseBody, httpBS )
 import Data.List (isInfixOf)
 import Data.ByteString.Lazy.Char8 (unpack, pack)
 import GHC.Generics
+import Data.Maybe
 
 data Status = Status { 
                 country :: String
@@ -28,26 +27,14 @@ instance ToJSON Status where
 
 instance FromJSON Status where
   parseJSON = genericParseJSON defaultOptions
-  
-getJson :: String -> IO(Value) 
-getJson url = do
-    request <- parseRequest $ "GET " ++ url
-    response <- httpJSON request
-    return(getResponseBody $ response :: Value)
-    
-getText :: String -> IO(String)    
-getText url = do
-    request <- parseRequest $ "GET " ++ url
-    response <- httpBS request
-    return(show (getResponseBody response))
 
 baseUrl = "https://am.i.mullvad.net"
 
 getVpnConnectionMessage :: IO(String)
-getVpnConnectionMessage = getText $ baseUrl ++ "/connected"
+getVpnConnectionMessage = Net.getText $ baseUrl ++ "/connected"
 
 getVpnConnectionJson :: IO(Value)
-getVpnConnectionJson = getJson $ baseUrl ++ "/json"
+getVpnConnectionJson = Net.getJson $ baseUrl ++ "/json"
 
 getStatus :: IO(Status)
 getStatus = do
