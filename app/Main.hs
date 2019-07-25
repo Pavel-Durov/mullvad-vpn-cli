@@ -32,10 +32,10 @@ checkConnection country = do
     connected <- isConnected(country)
     if connected
         then do 
-            putStrLn "👍 You are Connected"
+            putStrLn "👍  You are connected"
             exitSuccess
         else do 
-            putStrLn "👎 You are NOT Connected"
+            putStrLn "👎  You are NOT connected"
             exitFailure
 
 main :: IO ()
